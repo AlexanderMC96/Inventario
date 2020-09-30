@@ -3,7 +3,7 @@ import sqlite3
 import os
 from producto import Producto
 
-DB_NAME = "./Clase11-db-python/db-poo/FerreteriaCOCO2.db"
+DB_NAME = r"C:\Users\server\Desktop\LoopGK-PYTHON\Clase11-db-python\db-poo\FerreteriaCOCO2.db"
 # Crear el objeto de conexion en este caso le ponemos conn por convencion
 conn = sqlite3.connect(DB_NAME)
 # Crear el cursor para la conexion. 
@@ -43,7 +43,7 @@ def insertar_producto(prod):
         {'id_producto':prod.id_articulo,'nombre_producto':prod.articulo,'tipo_producto':prod.tipo_articulo,'precio_producto':prod.precio,'stock_producto':prod.stock}                    
         )
                     
-                    
+    conn.commit()            
 def obtener_producto_por_tipo(tipo_articulo):
     c.execute("SELECT * FROM producto WHERE tipo_articulo =:tipo_producto",{'tipo_producto':tipo_articulo})
     return c.fetchall()
@@ -61,20 +61,19 @@ def actualizar_stock(id_prod,stock_prod):
     # que sea estricta (INSERTAR, ACTUALIZAR, ELIMINAR). No se utiliza en casos de solo visualizar la data
     
     with conn:
-        id_prod = int(input('Ingrese el número identificador de producto: '))
-        stock_prod= int(input('Ingrese el nuevo stock del producto: '))
-        new_data=(id_prod,stock_prod)
         c.execute(""" UPDATE producto SET stock = ?  WHERE id_articulo =? """,
-                    (id_prod,stock_prod)
-        )
-              
+                    (stock_prod,id_prod)
+                )
+        print('Se ha actualizado correctamente.')
+        conn.commit()          
     
-def eliminar_producto(prod):
+def eliminar_producto(id_prod):
     #Nunca olvidar usar la instruccion WHERE  para la funcion DELETE, se echaria a perder todo
     with conn:
         c.execute("""DELETE FROM producto WHERE id_articulo= :id_producto""",
-                    {'id_producto':prod.id_articulo}
+                    {'id_producto':id_prod}
                 )
+        conn.commit()
 
 def cleaning():
     while True:
@@ -113,10 +112,10 @@ if __name__ == '__main__':
             print('2) Visualizar por Tipo de producto')  
             print()
             
-            while True:
-                opcion = int(input("Digite la opción de consulta: "))
+            while True:                
                 print()
                 try:
+                    opcion = int(input("Digite la opción de consulta: "))
                     if opcion ==1:
                         total_productos = ver_productos()
                         for i in total_productos:
@@ -151,48 +150,31 @@ if __name__ == '__main__':
                              
 
         elif opcion ==3:
-            print("IMPORTANTE: Es sumamente necesario escribir correctamente el ID del producto a modificar.\n")
-            #while True:
-            #    try:
-                    #id_prod = int(input('Ingrese el número identificador de producto: '))
-                    #stock_prod= int(input('Ingrese el nuevo stock del producto: '))
-                            
-            #        prod_unico=(ver_producto_unico(id_prod))
-            #        print(prod_unico)
-
-            #actualizar_stock(id_prod,stock_prod)
-            #        print('Se ha actualizado correctamente.')
-            cleaning()
-            #        break
-            #    except ValueError:
-            #        print('ERROR: Vuelva a ingresar un dato válido.')
-
-            #OJO: Si ingreso este tipo de dato, la funcion actualizar funciona con normalidad.
-            # pro10 = Producto(10,'Wincha','Construccion',5,5)
-            #print(type(pro10))
-            #print(type(stock_prod))
-            #      
-        elif opcion ==4:
-            print("IMPORTANTE: Es sumamente necesario escribir correctamente el ID del producto a eliminar.\n")
-            while True:
-                try:
-                    id_prod = int(input('Ingrese el número identificador de producto: '))
-                                              
+                    print("IMPORTANTE: Es sumamente necesario escribir correctamente el ID del producto a modificar.\n")
+                    id_prod = int(input('Ingrese el número identificador de producto: '))                                              
                     prod_unico=(ver_producto_unico(id_prod))
                     print(prod_unico)
+                    stock_prod= int(input('Ingrese el nuevo stock del producto: '))
+                    actualizar_stock(id_prod,stock_prod)
+                    
+                    cleaning()                  
+            
+        elif opcion ==4:
+            print("IMPORTANTE: Es sumamente necesario escribir correctamente el ID del producto a eliminar.\n")
+            id_prod = int(input('Ingrese el número identificador de producto: '))
+                                              
+            prod_unico=(ver_producto_unico(id_prod))
+            print(prod_unico)
 
-                    #eliminar_producto(prod_unico)
-                    print('Se ha eliminado correctamente.')
-                    cleaning()
-                    break
-                except ValueError:
-                    print('ERROR: Vuelva a ingresar un dato válido.')
+            eliminar_producto(id_prod)
+            print('Se ha eliminado correctamente.')
+            cleaning()
+              
     
     print('Gracias por usar nuestro inventario... !!!')
                                   
     conn.commit()
-    conn.close()        
-
+    conn.close()
             
 
             
